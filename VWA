@@ -1,0 +1,43 @@
+# 1. Instalar herramientas necesarias
+sudo apt-get update
+sudo apt-get install apache2 mysql-server php libapache2-mod-php php-mysqli php-gd php-mbstring wget unzip
+
+# 2. Configurar la carpeta de DVWA
+cd /var/www/html
+sudo wget https://storage.googleapis.com/breathecode/virtualbox/DVWA.zip
+sudo unzip DVWA.zip
+sudo mv digininja-DVWA-* DVWA
+sudo chown -R www-data:www-data /var/www/html/DVWA
+sudo chmod -R 755 /var/www/html/DVWA
+
+# 3. Configurar el archivo config.inc.php
+cd /var/www/html/DVWA/config
+sudo cp config.inc.php.dist config.inc.php
+sudo nano config.inc.php
+
+# 4. Configurar MariaDB
+sudo mysql -u root -p
+CREATE USER 'dvwa'@'localhost' IDENTIFIED BY 'password';
+CREATE DATABASE dvwa;
+GRANT ALL PRIVILEGES ON dvwa.* TO 'dvwa'@'localhost';
+FLUSH PRIVILEGES;
+EXIT;
+
+# 5. Habilitar funciones PHP
+sudo nano /etc/php/8.2/apache2/php.ini
+# Modificar:
+# display_errors = On
+# display_startup_errors = On
+# allow_url_fopen = On
+# allow_url_include = On
+
+# Reiniciar Apache
+sudo systemctl restart apache2
+
+# 6. Limpiar sesiones y uploads (opcional en caso de problemas)
+sudo rm -rf /var/www/html/DVWA/hackable/uploads/*
+sudo rm -rf /var/www/html/DVWA/sessions/*
+sudo systemctl restart apache2
+
+# 7. Revisar logs de Apache (opcional en caso de errores)
+sudo tail -f /var/log/apache2/error.log
